@@ -1,0 +1,253 @@
+-- 🗃️ ЗАДАНИЕ 1: СОЗДАНИЕ БАЗЫ ДАННЫХ И ТАБЛИЦ
+-- Цель: Научиться создавать базу данных и таблицы с различными ограничениями.
+
+-- 1.1. Создаем новую базу данных "CompanyDB"
+-- Если база уже существует - удаляем её
+USE master;
+GO
+
+IF DB_ID('CompanyDB') IS NOT NULL
+    DROP DATABASE CompanyDB;
+GO
+
+CREATE DATABASE CompanyDB;
+GO
+
+-- Переключаемся на созданную базу данных
+USE CompanyDB;
+GO
+
+-- 1.2. Создаем таблицу Departments (Отделы)
+CREATE TABLE Departments (
+    DepartmentID INT IDENTITY(1,1) PRIMARY KEY,
+    DepartmentName NVARCHAR(50) NOT NULL,
+    Location NVARCHAR(100) NULL,
+    Budget DECIMAL(15,2) DEFAULT 0.00,
+    CreatedDate DATETIME DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE Employees (
+    EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) UNIQUE NOT NULL,
+    Phone NVARCHAR(20) NULL, -- Исправлено: разрешаем NULL значения
+    HireDate DATE NOT NULL,
+    Salary DECIMAL(10,2) CHECK (Salary >= 0),
+    DepartmentID INT NULL,
+    IsActive BIT DEFAULT 1,
+    
+    CONSTRAINT FK_Employees_Departments 
+        FOREIGN KEY (DepartmentID) 
+        REFERENCES Departments(DepartmentID)
+        ON DELETE SET NULL
+);
+GO
+
+CREATE TABLE Projects (
+    ProjectID INT IDENTITY(1,1) PRIMARY KEY,
+    ProjectName NVARCHAR(100) NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NULL,
+    Budget DECIMAL(15,2) NULL,
+    Status NVARCHAR(20) DEFAULT 'Active' 
+        CHECK (Status IN ('Active', 'Completed', 'On Hold', 'Cancelled'))
+);
+GO
+
+SELECT 
+    TABLE_NAME,
+    TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+
+INSERT INTO Departments (DepartmentName, Location, Budget)
+VALUES
+    ('IT', '3 этаж', 500000.00),
+    ('HR', '2 этаж', 250000.00),
+    ('Finance', '1 этаж', 400000.00),
+    ('Marketing', '4 этаж', 350000.00),
+    ('Sales', '5 этаж', 600000.00);
+
+INSERT INTO Employees (FirstName, LastName, Email, Phone, HireDate, Salary, DepartmentID)
+VALUES
+    ('Иван', 'Иванов', 'ivanov@company.com', '+7(999)123-45-67', '2020-01-15', 75000.00, 1),
+    ('Мария', 'Петрова', 'petrova@company.com', '+7(999)234-56-78', '2019-03-10', 82000.00, 2),
+    ('Алексей', 'Сидоров', 'sidorov@company.com', '+7(999)345-67-89', '2021-05-20', 68000.00, 1),
+    ('Ольга', 'Кузнецова', 'kuznetsova@company.com', NULL, '2018-11-05', 95000.00, 3), -- Теперь NULL разрешен
+    ('Дмитрий', 'Смирнов', 'smirnov@company.com', '+7(999)456-78-90', '2022-02-28', 55000.00, 5),
+    ('Екатерина', 'Васильева', 'vasilieva@company.com', '+7(999)567-89-01', '2020-07-15', 72000.00, 4),
+    ('Сергей', 'Попов', 'popov@company.com', NULL, '2023-01-10', 48000.00, NULL); -- Теперь NULL разрешен
+
+INSERT INTO Projects (ProjectName, StartDate, EndDate, Budget, Status)
+VALUES
+    ('Разработка нового сайта', '2023-01-15', '2023-06-30', 200000.00, 'Active'),
+    ('Автоматизация отчетности', '2023-02-01', '2023-08-15', 150000.00, 'Active'),
+    ('Ребрендинг компании', '2022-11-01', '2023-03-31', 300000.00, 'Completed'),
+    ('Внедрение CRM системы', '2023-03-01', NULL, 250000.00, 'On Hold'),
+    ('Исследование рынка', '2023-04-10', '2023-05-31', 80000.00, 'Active');
+
+SELECT 'Departments' AS TableName, COUNT(*) AS [RowCount] FROM Departments
+UNION ALL
+SELECT 'Employees', COUNT(*) FROM Employees
+UNION ALL
+SELECT 'Projects', COUNT(*) FROM Projects;
+
+
+
+SELECT * FROM Employees;
+
+SELECT 
+    FirstName,
+    LastName, 
+    Salary
+FROM Employees;
+
+SELECT 
+    FirstName + ' ' + LastName AS FullName,
+    Salary,
+    HireDate
+FROM Employees
+WHERE Salary > 70000
+ORDER BY Salary DESC;
+
+SELECT 
+    e.FirstName,
+    e.LastName,
+    e.Salary,
+    d.DepartmentName
+FROM Employees e
+INNER JOIN Departments d ON e.DepartmentID = d.DepartmentID
+WHERE d.DepartmentName = 'IT';
+
+SELECT 
+    d.DepartmentName,
+    COUNT(e.EmployeeID) AS EmployeeCount,
+    AVG(e.Salary) AS AverageSalary
+FROM Departments d
+LEFT JOIN Employees e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentName
+ORDER BY EmployeeCount DESC;
+
+SELECT 
+    ProjectName,
+    StartDate,
+    EndDate,
+    Budget,
+    Status
+FROM Projects
+WHERE Status = 'Active' AND EndDate IS NOT NULL;
+
+
+UPDATE Employees
+SET Salary = Salary * 1.10
+WHERE DepartmentID = (SELECT DepartmentID FROM Departments WHERE DepartmentName = 'IT');
+
+SELECT * FROM Employees WHERE DepartmentID = 1;
+
+UPDATE Projects
+SET Status = 'Completed', EndDate = GETDATE()
+WHERE ProjectName = 'Ребрендинг компании' AND Status = 'Active';
+
+UPDATE Employees
+SET DepartmentID = (SELECT DepartmentID FROM Departments WHERE DepartmentName = 'Marketing')
+WHERE DepartmentID IS NULL;
+
+UPDATE Departments
+SET Budget = Budget + 50000.00
+WHERE DepartmentName = 'Sales';
+
+UPDATE Employees
+SET Email = 'ivanov.new@company.com'
+WHERE FirstName = 'Иван' AND LastName = 'Иванов';
+
+UPDATE Employees
+SET DepartmentID = (SELECT DepartmentID FROM Departments WHERE DepartmentName = 'Finance')
+WHERE FirstName = 'Мария' AND LastName = 'Петрова';
+
+
+DELETE FROM Projects
+WHERE Status = 'Cancelled';
+
+SELECT * FROM Employees 
+WHERE FirstName = 'Сергей' AND LastName = 'Попов';
+
+DELETE FROM Employees
+WHERE FirstName = 'Сергей' AND LastName = 'Попov';
+
+BEGIN TRY
+    DELETE FROM Departments 
+    WHERE DepartmentName = 'HR';
+END TRY
+BEGIN CATCH
+    PRINT 'Нельзя удалить отдел, так как в нем есть сотрудники!';
+END CATCH;
+
+DELETE FROM Projects
+WHERE Status = 'Completed';
+
+UPDATE Employees SET IsActive = 0 WHERE EmployeeID = 5;
+DELETE FROM Employees WHERE IsActive = 0;
+
+SELECT 
+    (SELECT COUNT(*) FROM Employees) AS EmployeesCount,
+    (SELECT COUNT(*) FROM Departments) AS DepartmentsCount,
+    (SELECT COUNT(*) FROM Projects) AS ProjectsCount;
+
+
+BEGIN TRANSACTION;
+
+INSERT INTO Departments (DepartmentName, Location, Budget)
+VALUES ('Research & Development', '6 этаж', 450000.00);
+
+DECLARE @NewDeptID INT = SCOPE_IDENTITY();
+
+INSERT INTO Employees (FirstName, LastName, Email, Phone, HireDate, Salary, DepartmentID)
+VALUES ('Анна', 'Новикова', 'novikova@company.com', '+7(999)678-90-12', GETDATE(), 78000.00, @NewDeptID);
+
+COMMIT TRANSACTION;
+
+UPDATE Employees
+SET Salary = 
+    CASE 
+        WHEN DepartmentID = 1 THEN Salary * 1.15 -- IT +15%
+        WHEN DepartmentID = 5 THEN Salary * 1.10 -- Sales +10%
+        ELSE Salary * 1.05 -- Все остальные +5%
+    END;
+
+SELECT DepartmentID 
+INTO #DeptsToDelete
+FROM Departments 
+WHERE DepartmentName IN ('Temp Department', 'Old Department');
+
+DELETE FROM Employees 
+WHERE DepartmentID IN (SELECT DepartmentID FROM #DeptsToDelete);
+
+DELETE FROM Departments 
+WHERE DepartmentID IN (SELECT DepartmentID FROM #DeptsToDelete);
+
+DROP TABLE #DeptsToDelete;
+
+SELECT *
+INTO ProjectsArchive
+FROM Projects
+WHERE Status = 'Completed';
+
+UPDATE Projects
+SET 
+    Status = 'On Hold',
+    Budget = Budget * 0.9 -- Уменьшаем бюджет на 10%
+WHERE EndDate IS NULL AND DATEDIFF(MONTH, StartDate, GETDATE()) > 6;
+
+SELECT 
+    'Employees' AS TableName, 
+    COUNT(*) AS RecordCount 
+FROM Employees
+UNION ALL
+SELECT 'Departments', COUNT(*) FROM Departments
+UNION ALL
+SELECT 'Projects', COUNT(*) FROM Projects
+UNION ALL
+SELECT 'ProjectsArchive', COUNT(*) FROM ProjectsArchive;
