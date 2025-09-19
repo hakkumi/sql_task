@@ -1,0 +1,41 @@
+USE tempdb; 
+
+IF OBJECT_ID('Books', 'U') IS NOT NULL
+    DROP TABLE Books;
+
+
+CREATE TABLE Books (
+    BookID INT IDENTITY(1,1) PRIMARY KEY, 
+    Title NVARCHAR(100) NOT NULL,
+    Author NVARCHAR(50) NOT NULL,
+    YearPublished INT NULL,
+    Price DECIMAL(10, 2) NULL
+);
+
+INSERT INTO Books (Title, Author, YearPublished, Price)
+VALUES
+    ('Война и мир', 'Лев Толстой', 1869, 1500.50),
+    ('Идиот', 'Федор Достоевский', 1869, 980.00),
+    ('1984', 'Джордж Оруэлл', 1949, 750.00),
+    ('Мастер и Маргарита', 'Михаил Булгаков', 1967, 1200.00),
+    ('Гарри Поттер и философский камень', 'Джоан Роулинг', 1997, 900.00),
+    ('Убить пересмешника', 'Харпер Ли', 1960, 850.50),
+    ('Дюна', 'Фрэнк Герберт', 1965, 950.00);
+
+SELECT * FROM Books;
+
+SELECT Title, Author
+FROM Books;
+
+SELECT *
+FROM Books
+WHERE YearPublished > 2000;
+
+SELECT *
+FROM Books
+ORDER BY Author ASC;
+
+
+SELECT TOP(3) * 
+FROM Books
+ORDER BY Price DESC; 
