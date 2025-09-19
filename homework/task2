@@ -1,0 +1,46 @@
+IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'University')
+CREATE DATABASE University;
+GO
+
+USE University;
+GO
+
+IF OBJECT_ID('Students', 'U') IS NOT NULL
+    DROP TABLE Students;
+
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    BirthDate DATE NULL,
+    Email NVARCHAR(100) NULL,
+    GroupName NVARCHAR(20) NULL
+);
+GO
+
+INSERT INTO Students (FirstName, LastName, BirthDate, Email, GroupName)
+VALUES
+    ('Иван', 'Иванов', '2000-05-15', 'ivanov@example.com', 'ПИ-101'),
+    ('Петр', 'Петров', '2001-12-03', 'petrov@example.com', 'ПИ-101'),
+    ('Мария', 'Сидорова', '2000-08-21', 'sidorova@example.com', 'ПИ-101'),
+    ('Анна', 'Кузнецова', '2002-03-10', 'kuznetsova@example.com', 'ИВТ-102'),
+    ('Сергей', 'Смирнов', '1999-11-25', 'smirnov@example.com', 'ИВТ-102'),
+    ('Ольга', 'Попова', '2000-07-30', 'popova@example.com', 'ПИ-101');
+
+SELECT * FROM Students;
+
+SELECT *
+FROM Students
+WHERE GroupName = 'ПИ-101';
+
+UPDATE Students
+SET GroupName = 'ПИ-102'
+WHERE FirstName = 'Петр' AND LastName = 'Петров'; 
+
+
+SELECT * FROM Students WHERE LastName = 'Петров';
+
+DELETE FROM Students
+WHERE FirstName = 'Сергей' AND LastName = 'Смирнов';
+
+SELECT * FROM Students;
