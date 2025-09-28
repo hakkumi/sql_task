@@ -1,0 +1,54 @@
+USE VetClinicDB
+GO
+
+BEGIN TRANSACTION;
+
+INSERT INTO Owners (FirstName, LastName, Phone, Email)
+VALUES ('Светлана', 'Орлова', '+7(999)666-77-88', 'orlova@mail.com');
+
+DECLARE @NewOwnerID INT = SCOPE_IDENTITY();
+
+COMMIT TRANSACTION;
+
+UPDATE Vets
+SET Salary = 
+    CASE 
+        WHEN Specialty = 'Хирургия' THEN Salary * 1.20
+        WHEN Specialty = 'Терапия' THEN Salary * 1.15
+        ELSE Salary * 1.10
+    END;
+
+SELECT VetID 
+INTO #VetsToUpdate
+FROM Vets 
+WHERE HireDate < '2020-01-01';
+
+UPDATE Visits
+SET Cost = Cost * 1.05
+WHERE VetID IN (SELECT VetID FROM #VetsToUpdate);
+
+DROP TABLE #VetsToUpdate;
+
+SELECT *
+INTO VisitsArchive
+FROM Visits
+WHERE VisitDate < '2022-01-01';
+
+UPDATE Visits
+SET 
+    Status = 'Completed',
+    Cost = Cost * 0.95
+WHERE Status = 'Scheduled' AND DATEDIFF(MONTH, VisitDate, GETDATE()) > 3;
+
+SELECT 
+    'Owners' AS TableName, 
+    COUNT(*) AS RecordCount 
+FROM Owners
+UNION ALL
+SELECT 'Pets', COUNT(*) FROM Pets
+UNION ALL
+SELECT 'Vets', COUNT(*) FROM Vets
+UNION ALL
+SELECT 'Visits', COUNT(*) FROM Visits
+UNION ALL
+SELECT 'VisitsArchive', COUNT(*) FROM VisitsArchive;
