@@ -1,0 +1,44 @@
+USE BeautySalonDB
+GO
+
+SELECT * FROM Appointments;
+
+SELECT 
+    ServiceName,
+    Duration,
+    Price
+FROM Services
+WHERE Price > 1000;
+
+SELECT 
+    c.FirstName + ' ' + c.LastName AS ClientName,
+    s.ServiceName,
+    a.AppointmentDate,
+    a.TotalPrice
+FROM Appointments a
+INNER JOIN Clients c ON a.ClientID = c.ClientID
+INNER JOIN Services s ON a.ServiceID = s.ServiceID
+WHERE a.TotalPrice > 1500
+ORDER BY a.TotalPrice DESC;
+
+SELECT 
+    e.FirstName + ' ' + e.LastName AS EmployeeName,
+    e.Position,
+    COUNT(a.AppointmentID) AS AppointmentCount,
+    SUM(a.TotalPrice) AS TotalRevenue
+FROM Employees e
+LEFT JOIN Appointments a ON e.EmployeeID = a.EmployeeID
+WHERE a.Status = 'Completed'
+GROUP BY e.FirstName, e.LastName, e.Position
+ORDER BY TotalRevenue DESC;
+
+SELECT 
+    s.ServiceName,
+    s.Category,
+    COUNT(a.AppointmentID) AS ServiceCount,
+    AVG(a.TotalPrice) AS AvgPrice
+FROM Services s
+LEFT JOIN Appointments a ON s.ServiceID = a.ServiceID
+GROUP BY s.ServiceName, s.Category
+HAVING COUNT(a.AppointmentID) > 0
+ORDER BY ServiceCount DESC;
