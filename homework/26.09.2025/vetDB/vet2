@@ -1,0 +1,48 @@
+USE VetClinicDB
+GO
+
+SELECT * FROM Pets;
+
+SELECT 
+    Name,
+    Species, 
+    Breed,
+    Age
+FROM Pets;
+
+SELECT 
+    p.Name AS PetName,
+    p.Species,
+    p.Breed,
+    o.FirstName + ' ' + o.LastName AS OwnerName
+FROM Pets p
+INNER JOIN Owners o ON p.OwnerID = o.OwnerID
+WHERE p.Age > 2
+ORDER BY p.Age DESC;
+
+SELECT 
+    v.FirstName + ' ' + v.LastName AS VetName,
+    v.Specialty,
+    COUNT(vi.VisitID) AS VisitCount
+FROM Vets v
+LEFT JOIN Visits vi ON v.VetID = vi.VetID
+GROUP BY v.FirstName, v.LastName, v.Specialty
+ORDER BY VisitCount DESC;
+
+SELECT 
+    o.FirstName + ' ' + o.LastName AS OwnerName,
+    COUNT(p.PetID) AS PetCount
+FROM Owners o
+LEFT JOIN Pets p ON o.OwnerID = p.OwnerID
+GROUP BY o.FirstName, o.LastName
+HAVING COUNT(p.PetID) > 1
+ORDER BY PetCount DESC;
+
+SELECT 
+    p.Name AS PetName,
+    vi.VisitDate,
+    vi.Diagnosis,
+    vi.Cost
+FROM Visits vi
+INNER JOIN Pets p ON vi.PetID = p.PetID
+WHERE vi.Cost > 2000 AND vi.Status = 'Completed';
