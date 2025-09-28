@@ -1,0 +1,61 @@
+USE MASTER;
+GO
+
+IF DB_ID('BeautySalonDB') IS NOT NULL
+    DROP DATABASE BeautySalonDB;
+GO
+
+CREATE DATABASE BeautySalonDB;
+GO
+
+USE BeautySalonDB;
+GO
+
+CREATE TABLE Clients (
+    ClientID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    Email NVARCHAR(100) NULL
+);
+
+
+CREATE TABLE Employees (
+    EmployeeID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Position NVARCHAR(50) NOT NULL,
+    HireDate DATE NOT NULL,
+    Salary DECIMAL(10,2) CHECK (Salary >= 0),
+    IsActive BIT DEFAULT 1
+);
+
+CREATE TABLE Services (
+    ServiceID INT IDENTITY(1,1) PRIMARY KEY,
+    ServiceName NVARCHAR(100) NOT NULL,
+    Duration INT NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    Category NVARCHAR(50) NULL
+);
+
+CREATE TABLE Appointments (
+    AppointmentID INT IDENTITY(1,1) PRIMARY KEY,
+    ClientID INT NOT NULL,
+    EmployeeID INT NOT NULL,
+    ServiceID INT NOT NULL,
+    AppointmentDate DATETIME NOT NULL,
+    Duration INT NOT NULL,
+    TotalPrice DECIMAL(10,2) NOT NULL,
+    Status NVARCHAR(20) DEFAULT 'Scheduled' CHECK (Status IN ('Scheduled', 'Completed', 'Cancelled', 'NoShow')),
+    Notes NVARCHAR(MAX) NULL,
+    CONSTRAINT FK_Appointments_Clients FOREIGN KEY (ClientID) REFERENCES Clients(ClientID),
+    CONSTRAINT FK_Appointments_Employees FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
+    CONSTRAINT FK_Appointments_Services FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID)
+);
+
+
+SELECT 
+    TABLE_NAME,
+    TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_TYPE = 'BASE TABLE';
