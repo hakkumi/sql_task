@@ -1,0 +1,65 @@
+USE MASTER;
+GO
+
+IF DB_ID('FoodDeliveryDB') IS NOT NULL
+    DROP DATABASE FoodDeliveryDB;
+GO
+
+CREATE DATABASE FoodDeliveryDB;
+GO
+
+USE FoodDeliveryDB;
+GO
+
+CREATE TABLE Restaurants (
+    RestaurantID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Cuisine NVARCHAR(50) NOT NULL,
+    Address NVARCHAR(200) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    Rating DECIMAL(3,2) NULL,
+    IsActive BIT DEFAULT 1
+);
+
+CREATE TABLE Couriers (
+    CourierID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    VehicleType NVARCHAR(50) NOT NULL,
+    HireDate DATE NOT NULL,
+    Salary DECIMAL(10,2) CHECK (Salary >= 0),
+    IsActive BIT DEFAULT 1
+);
+
+CREATE TABLE Customers (
+    CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Phone NVARCHAR(20) NOT NULL,
+    Address NVARCHAR(200) NOT NULL,
+    Email NVARCHAR(100) NULL,
+    RegistrationDate DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    RestaurantID INT NOT NULL,
+    CourierID INT NULL,
+    OrderDate DATETIME NOT NULL,
+    DeliveryAddress NVARCHAR(200) NOT NULL,
+    TotalAmount DECIMAL(10,2) NOT NULL,
+    DeliveryFee DECIMAL(10,2) DEFAULT 200.00,
+    Status NVARCHAR(20) DEFAULT 'Processing' CHECK (Status IN ('Processing', 'Cooking', 'Ready', 'InDelivery', 'Delivered', 'Cancelled')),
+    EstimatedDelivery TIME NULL,
+    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    CONSTRAINT FK_Orders_Restaurants FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID),
+    CONSTRAINT FK_Orders_Couriers FOREIGN KEY (CourierID) REFERENCES Couriers(CourierID)
+);
+
+SELECT 
+    TABLE_NAME,
+    TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES 
+WHERE TABLE_TYPE = 'BASE TABLE';
