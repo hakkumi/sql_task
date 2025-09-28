@@ -1,0 +1,28 @@
+USE FoodDeliveryDB;
+GO
+
+UPDATE Restaurants
+SET Rating = Rating + 0.1
+WHERE Cuisine = 'Итальянская';
+
+SELECT * FROM Restaurants WHERE Cuisine = 'Итальянская';
+
+UPDATE Orders
+SET Status = 'Delivered', TotalAmount = TotalAmount * 1.05
+WHERE OrderDate < '2023-01-16T00:00:00' AND Status = 'InDelivery';
+
+UPDATE Couriers
+SET Salary = Salary * 1.10
+WHERE VehicleType = 'Автомобиль';
+
+UPDATE Restaurants
+SET Rating = 5.0
+WHERE Name = 'ШашлыкOFF';
+
+UPDATE Customers
+SET Email = 'new.anna@mail.com'
+WHERE FirstName = 'Анна' AND LastName = 'Заказова';
+
+UPDATE Orders
+SET DeliveryFee = DeliveryFee * 0.8
+WHERE TotalAmount > 2000;
