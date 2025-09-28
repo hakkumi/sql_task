@@ -1,0 +1,30 @@
+USE BeautySalonDB
+GO
+
+DELETE FROM Appointments
+WHERE Status = 'Cancelled';
+
+SELECT * FROM Clients 
+WHERE FirstName = 'Ирина' AND LastName = 'Смирнова';
+
+DELETE FROM Appointments
+WHERE ClientID IN (SELECT ClientID FROM Clients WHERE FirstName = 'Ирина' AND LastName = 'Смирнова');
+
+BEGIN TRY
+    DELETE FROM Employees 
+    WHERE FirstName = 'Юлия' AND LastName = 'Маникюрщикова';
+END TRY
+BEGIN CATCH
+    PRINT 'Нельзя удалить сотрудника, так как у него есть записи!';
+END CATCH;
+
+DELETE FROM Appointments
+WHERE AppointmentDate < '2023-01-01';
+
+UPDATE Employees SET IsActive = 0 WHERE EmployeeID = 4;
+
+SELECT 
+    (SELECT COUNT(*) FROM Clients) AS ClientsCount,
+    (SELECT COUNT(*) FROM Employees) AS EmployeesCount,
+    (SELECT COUNT(*) FROM Services) AS ServicesCount,
+    (SELECT COUNT(*) FROM Appointments) AS AppointmentsCount;
