@@ -1,0 +1,29 @@
+USE BeautySalonDB;
+GO
+
+UPDATE Services
+SET Price = Price * 1.10
+WHERE Category = 'Парикмахерские';
+
+SELECT * FROM Services WHERE Category = 'Парикмахерские';
+
+UPDATE Appointments
+SET Status = 'Completed', TotalPrice = TotalPrice * 1.05
+WHERE AppointmentDate < '2023-01-17T00:00:00' AND Status = 'Scheduled';
+
+
+UPDATE Employees
+SET Salary = Salary * 1.15
+WHERE Position = 'Парикмахер';
+
+UPDATE Services
+SET Price = Price + 500.00
+WHERE Duration > 60;
+
+UPDATE Clients
+SET Email = 'new.anna@mail.com'
+WHERE FirstName = 'Анна' AND LastName = 'Иванова';
+
+UPDATE Appointments
+SET TotalPrice = TotalPrice * 0.9
+WHERE Status = 'Cancelled' AND AppointmentDate > '2023-01-16T00:00:00';
