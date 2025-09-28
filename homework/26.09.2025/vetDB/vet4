@@ -1,0 +1,32 @@
+USE VetClinicDB
+GO
+
+DELETE FROM Visits
+WHERE Status = 'Cancelled';
+
+SELECT * FROM Pets 
+WHERE Name = 'Зефир' AND OwnerID = 1;
+
+DELETE FROM Pets
+WHERE Name = 'Зефир' AND OwnerID = 1;
+
+BEGIN TRY
+    DELETE FROM Vets 
+    WHERE FirstName = 'Михаил' AND LastName = 'Лечебников';
+END TRY
+BEGIN CATCH
+    PRINT 'Нельзя удалить врача, так как у него есть записи на прием!';
+END CATCH;
+
+DELETE FROM Visits
+WHERE VisitDate < '2023-01-01';
+
+UPDATE Pets SET IsActive = 0 WHERE PetID = 6;
+
+DELETE FROM Pets WHERE IsActive = 0;
+
+SELECT 
+    (SELECT COUNT(*) FROM Owners) AS OwnersCount,
+    (SELECT COUNT(*) FROM Pets) AS PetsCount,
+    (SELECT COUNT(*) FROM Vets) AS VetsCount,
+    (SELECT COUNT(*) FROM Visits) AS VisitsCount;
