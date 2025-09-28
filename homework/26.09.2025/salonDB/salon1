@@ -1,0 +1,43 @@
+USE BeautySalonDB;
+GO
+
+INSERT INTO Clients (FirstName, LastName, Phone, Email)
+VALUES
+    ('Анна', 'Иванова', '+7(999)111-11-11', 'anna@mail.com'),
+    ('Елена', 'Петрова', '+7(999)222-22-22', 'elena@mail.com'),
+    ('Ольга', 'Сидорова', '+7(999)333-33-33', NULL),
+    ('Мария', 'Кузнецова', '+7(999)444-44-44', 'maria@mail.com'),
+    ('Ирина', 'Смирнова', '+7(999)555-55-55', 'irina@mail.com');
+
+INSERT INTO Employees (FirstName, LastName, Position, HireDate, Salary)
+VALUES
+    ('Светлана', 'Мастерова', 'Парикмахер', '2020-03-15', 60000.00),
+    ('Наталья', 'Красилова', 'Визажист', '2019-05-10', 55000.00),
+    ('Татьяна', 'Стилистова', 'Стилист', '2021-02-20', 65000.00),
+    ('Юлия', 'Маникюрщикова', 'Мастер маникюра', '2022-01-08', 50000.00);
+
+INSERT INTO Services (ServiceName, Duration, Price, Category)
+VALUES
+    ('Стрижка женская', 60, 1500.00, 'Парикмахерские'),
+    ('Окрашивание волос', 120, 3000.00, 'Парикмахерские'),
+    ('Макияж', 45, 2000.00, 'Визаж'),
+    ('Маникюр', 60, 1200.00, 'Ногтевой сервис'),
+    ('Педикюр', 90, 1800.00, 'Ногтевой сервис'),
+    ('Укладка', 30, 800.00, 'Парикмахерские'),
+    ('SPA-процедуры', 120, 4000.00, 'Уход');
+
+INSERT INTO Appointments (ClientID, EmployeeID, ServiceID, AppointmentDate, Duration, TotalPrice, Status)
+VALUES
+    (1, 1, 1, '2023-01-15T10:00:00', 60, 1500.00, 'Completed'),
+    (2, 2, 3, '2023-01-15T11:30:00', 45, 2000.00, 'Completed'),
+    (3, 4, 4, '2023-01-16T14:00:00', 60, 1200.00, 'Scheduled'),
+    (4, 1, 2, '2023-01-16T16:00:00', 120, 3000.00, 'Scheduled'),
+    (5, 3, 6, '2023-01-17T09:30:00', 30, 800.00, 'Cancelled');
+
+SELECT 'Clients' AS TableName, COUNT(*) AS Count FROM Clients
+UNION ALL
+SELECT 'Employees', COUNT(*) FROM Employees
+UNION ALL
+SELECT 'Services', COUNT(*) FROM Services
+UNION ALL
+SELECT 'Appointments', COUNT(*) FROM Appointments;
