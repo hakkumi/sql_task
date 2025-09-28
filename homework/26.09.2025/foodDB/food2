@@ -1,0 +1,45 @@
+USE FoodDeliveryDB
+GO
+
+SELECT * FROM Orders;
+
+SELECT 
+    Name,
+    Cuisine,
+    Rating
+FROM Restaurants
+WHERE Rating > 4.5;
+
+SELECT 
+    c.FirstName + ' ' + c.LastName AS CustomerName,
+    r.Name AS RestaurantName,
+    o.OrderDate,
+    o.TotalAmount,
+    o.Status
+FROM Orders o
+INNER JOIN Customers c ON o.CustomerID = c.CustomerID
+INNER JOIN Restaurants r ON o.RestaurantID = r.RestaurantID
+WHERE o.TotalAmount > 1000
+ORDER BY o.TotalAmount DESC;
+
+SELECT 
+    r.Name AS RestaurantName,
+    r.Cuisine,
+    COUNT(o.OrderID) AS OrderCount,
+    AVG(o.TotalAmount) AS AvgOrderValue
+FROM Restaurants r
+LEFT JOIN Orders o ON r.RestaurantID = o.RestaurantID
+WHERE o.Status = 'Delivered'
+GROUP BY r.Name, r.Cuisine
+ORDER BY OrderCount DESC;
+
+SELECT 
+    cou.FirstName + ' ' + cou.LastName AS CourierName,
+    cou.VehicleType,
+    COUNT(o.OrderID) AS DeliveryCount,
+    SUM(o.TotalAmount) AS TotalDelivered
+FROM Couriers cou
+LEFT JOIN Orders o ON cou.CourierID = o.CourierID
+WHERE o.Status = 'Delivered'
+GROUP BY cou.FirstName, cou.LastName, cou.VehicleType
+ORDER BY DeliveryCount DESC;
