@@ -1,0 +1,57 @@
+USE FoodDeliveryDB
+GO
+
+BEGIN TRANSACTION;
+
+INSERT INTO Customers (FirstName, LastName, Phone, Address, Email)
+VALUES ('Никита', 'Ужинов', '+7(999)123-45-67', 'ул. Новая, 15-28', 'nikita@mail.com');
+
+DECLARE @NewCustomerID INT = SCOPE_IDENTITY();
+
+INSERT INTO Orders (CustomerID, RestaurantID, CourierID, OrderDate, DeliveryAddress, TotalAmount, Status)
+VALUES (1, 2, 3, '2023-01-18T19:00:00', N'ул. Новая, 15-28', 1350.00, 'Processing');
+
+COMMIT TRANSACTION;
+
+UPDATE Couriers
+SET Salary = 
+    CASE 
+        WHEN VehicleType = 'Автомобиль' THEN Salary * 1.20
+        WHEN VehicleType = 'Мотоцикл' THEN Salary * 1.15
+        ELSE Salary * 1.10
+    END;
+
+SELECT RestaurantID 
+INTO #TopRestaurants
+FROM Restaurants 
+WHERE Rating > 4.5;
+
+UPDATE Orders
+SET TotalAmount = TotalAmount * 1.07
+WHERE RestaurantID IN (SELECT RestaurantID FROM #TopRestaurants);
+
+DROP TABLE #TopRestaurants;
+
+SELECT *
+INTO OrdersArchive
+FROM Orders
+WHERE OrderDate < '2022-01-01';
+
+UPDATE Orders
+SET 
+    Status = 'Delivered',
+    TotalAmount = TotalAmount * 0.98
+WHERE Status = 'Processing' AND DATEDIFF(HOUR, OrderDate, GETDATE()) > 24;
+
+SELECT 
+    'Restaurants' AS TableName, 
+    COUNT(*) AS RecordCount 
+FROM Restaurants
+UNION ALL
+SELECT 'Couriers', COUNT(*) FROM Couriers
+UNION ALL
+SELECT 'Customers', COUNT(*) FROM Customers
+UNION ALL
+SELECT 'Orders', COUNT(*) FROM Orders
+UNION ALL
+SELECT 'OrdersArchive', COUNT(*) FROM OrdersArchive;
