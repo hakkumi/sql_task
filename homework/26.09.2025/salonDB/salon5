@@ -1,0 +1,57 @@
+USE BeautySalonDB
+GO
+
+BEGIN TRANSACTION;
+
+INSERT INTO Clients (FirstName, LastName, Phone, Email)
+VALUES ('Виктория', 'Романова', '+7(999)777-88-99', 'vika@mail.com');
+
+DECLARE @NewClientID INT = SCOPE_IDENTITY();
+
+INSERT INTO Appointments (ClientID, EmployeeID, ServiceID, AppointmentDate, Duration, TotalPrice, Status)
+VALUES (1, 2, 3, '2023-01-20T15:00:00', 45, 2000.00, 'Scheduled');
+
+COMMIT TRANSACTION;
+
+UPDATE Services
+SET Price = 
+    CASE 
+        WHEN Category = 'Парикмахерские' THEN Price * 1.20
+        WHEN Category = 'Визаж' THEN Price * 1.15
+        ELSE Price * 1.10
+    END;
+
+SELECT ServiceID 
+INTO #PopularServices
+FROM Services 
+WHERE Price > 2000;
+
+UPDATE Appointments
+SET TotalPrice = TotalPrice * 1.08
+WHERE ServiceID IN (SELECT ServiceID FROM #PopularServices);
+
+DROP TABLE #PopularServices;
+
+SELECT *
+INTO AppointmentsArchive
+FROM Appointments
+WHERE AppointmentDate < '2022-01-01';
+
+UPDATE Appointments
+SET 
+    Status = 'Completed',
+    TotalPrice = TotalPrice * 0.95
+WHERE Status = 'Scheduled' AND DATEDIFF(MONTH, AppointmentDate, GETDATE()) > 2;
+
+SELECT 
+    'Clients' AS TableName, 
+    COUNT(*) AS RecordCount 
+FROM Clients
+UNION ALL
+SELECT 'Employees', COUNT(*) FROM Employees
+UNION ALL
+SELECT 'Services', COUNT(*) FROM Services
+UNION ALL
+SELECT 'Appointments', COUNT(*) FROM Appointments
+UNION ALL
+SELECT 'AppointmentsArchive', COUNT(*) FROM AppointmentsArchive;
